@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My WebGIS</title>
+
+    <!-- Leaflet CSS Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+
+    <!-- Tab browser icon -->
+    <link rel="icon" type="image/x-icon" href=https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css>
+
+    <!-- Search CSS Library -->
+    <link rel="stylesheet" href="assets/plugins/leaflet-search/leaflet-search.css" />
+
+    <!-- Geolocation CSS Library for Plugin -->
+    <link rel="stylesheet"
+        href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.css" />
+
+    <!-- Leaflet Mouse Position CSS Library -->
+    <link rel="stylesheet" href="assets/plugins/leaflet-mouseposition/L.Control.MousePosition.css" />
+
+    <!-- Leaflet Measure CSS Library -->
+    <link rel="stylesheet" href="assets/plugins/leaflet-measure/leaflet-measure.css" />
+
+    <!-- EasyPrint CSS Library -->
+    <link rel="stylesheet" href="assets/plugins/leaflet-easyprint/easyPrint.css" />
+
+    <!-- Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
+
+    <!-- Routing CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+    <style>
+        #map {
+            height: 100vh;
+        }
+
+        /* Background pada Judul */
+        *.info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .info h2 {
+            margin: 0 0 5px;
+            color: #777;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <div id="map" style="height: 200px;"></div>
+
+    <!-- Search JavaScript Library -->
+    <script src="assets/plugins/leaflet-search/leaflet-search.js"></script>
+
+    <!-- Geolocation Javascript Library -->
+    <script
+        src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
+
+    <!-- Leaflet Mouse Position JavaScript Library -->
+    <script src="assets/plugins/leaflet-mouseposition/L.Control.MousePosition.js"></script>
+
+    <!-- Leaflet Measure JavaScript Library -->
+    <script src="assets/plugins/leaflet-measure/leaflet-measure.js"></script>
+
+    <!-- EasyPrint JavaScript Library -->
+    <script src="assets/plugins/leaflet-easyprint/leaflet.easyPrint.js"></script>
+
+    <!-- Marker Cluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+    <!-- Routing JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script>
+
+        var map = L.map('map').setView([-7.7956, 110.3695], 10); //lat, long, zoom
+
+        var basemap1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="RASYIDINI" target="_blank">DIVSIG UGM</a>'
+            });
+
+        var basemap2 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{ z } / { y } / { x }',
+            {
+                attribution: 'Tiles &copy; Esri | <a href="Latihan WebGIS" target="_blank">DIVSIG UGM</a>'
+            });
+        var basemap3 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{ z } / { y } / { x }',
+            {
+                attribution: 'Tiles &copy; Esri | <a href="Lathan WebGIS" target="_blank">DIVSIG UGM</a>'
+            });
+        var basemap4 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+            {
+                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptile s.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+            });
+        basemap1.addTo(map);
+
+        $.getJSON("geoportal.php", function (data) {
+            wfsgeoserver1.addData(data);
+            wfsgeoserver1.addTo(map);
+            map.fitBounds(wfsgeoserver1.getBounds());
+        });
+
+        /* Judul dan Subjudul */
+        var title = new L.Control();
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>WEBGIS | DATA PASIEN COVID 19 KABUPATEN SLEMAN</h2>MATAKULIAH PEMROGRAMAN GEOSPASIAL : WEB'
+        };
+        title.addTo(map);
+
+        /* Image Watermark */
+        L.Control.Watermark = L.Control.extend({
+            onAdd: function (map) {
+                var img = L.DomUtil.create('img');
+                img.src = 'assets/img/logo.png';
+                img.style.width = '150px';
+                return img;
+            }
+        });
+        L.control.watermark = function (opts) {
+            return new L.Control.Watermark(opts);
+        }
+        L.control.watermark({ position: 'topleft' }).addTo(map);
+
+        /* Image Legend */
+        L.Control.Legend = L.Control.extend({
+            onAdd: function (map) {
+                var img = L.DomUtil.create('img');
+                img.src = 'assets/img/legend.png';
+                img.style.width = '300px';
+                return img;
+            }
+        });
+        L.control.Legend = function (opts) {
+            return new L.Control.Legend(opts);
+        }
+        L.control.Legend({ position: 'bottomleft' }).addTo(map);
+
+        /* Control Layer */
+        var baseMaps = {
+            "OpenStreetMap": basemap1,
+            "Esri World Street": basemap2,
+            "Esri Imagery": basemap3,
+            "Stadia Dark Mode": basemap4
+        };
+        L.control.layers(baseMaps).addTo(map);
+
+        /* Scale Bar */
+        L.control.scale({
+            maxWidth: 150, position: 'bottomright'
+        }).addTo(map);
+        var wfsgeoserver1 = L.geoJson(null, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: L.icon({
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32],
+                        popupAnchor: [0, -32],
+                        tooltipAnchor: [16, -20]
+                    })
+                });
+            },
+            onEachFeature: function (feature, layer) {
+                var content = "Kecamatan : " + feature.properties.Kapanewon + "<br>" +
+                    "Jumlah Pasien Aktif : " + feature.properties.Total + "<br>"
+                layer.on({
+                    click: function (e) {
+                        wfsgeoserver1.bindPopup(content);
+                    },
+                    mouseover: function (e) {
+                        wfsgeoserver1.bindTooltip(feature.properties.Kapanewon);
+                    },
+                    mouseout: function (e) {
+                        wfsgeoserver1.closePopup();
+                    }
+                });
+            }
+        });
+
+    </script>
+
+    <!-- Plugin Search -->
+    <script>
+        var searchControl = new L.Control.Search({
+            position: "topleft",
+            layer: wfsgeoserver1,
+            propertyName: "Kapanewon",
+            marker: false,
+            moveToLocation: function (latlng, title, map) {
+                var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+                map.setView(latlng, zoom);
+            },
+        });
+        searchControl
+            .on("search:locationfound", function (e) {
+                e.layer.setStyle({
+                    fillColor: "#ffff00",
+                    color: "#0000ff",
+                });
+            })
+            .on("search:collapse", function (e) {
+                featuresLayer.eachLayer(function (layer) {
+                    featuresLayer.resetStyle(layer);
+                });
+            });
+        map.addControl(searchControl);
+    </script>
+
+    <!-- Plugin Geolocation -->
+    <script
+        src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
+    <script>
+        var locateControl = L.control.locate({
+            position: "topleft",
+            drawCircle: true,
+            follow: true,
+            setView: true,
+            keepCurrentZoomLevel: false,
+            markerStyle: {
+                weight: 1,
+                opacity: 0.8,
+                fillOpacity: 0.8,
+            },
+            circleStyle: {
+                weight: 1,
+                clickable: false,
+            },
+            icon: "fas fa-crosshairs",
+            metric: true,
+            strings: {
+                title: "Click for Your Location",
+                popup: "You're here. Accuracy {distance} {unit}",
+                outsideMapBoundsMsg: "Not available"
+            },
+            locateOptions: {
+                maxZoom: 16,
+                watch: true,
+                enableHighAccuracy: true,
+                maximumAge: 10000,
+                timeout: 10000
+            },
+        }).addTo(map);
+    </script>
+
+    <!-- Plugin Mouse Location Coordinate -->
+    <script src="assets/plugins/leaflet-mouseposition/L.Control.MousePosition.js"></script>
+    <script>
+        L.control.mousePosition({
+            position: 'bottomright',
+            separator: ',',
+            prefix: 'Koordinat : '
+        }).addTo(map);
+    </script>
+
+    <!-- Plugin Measurement Tool -->
+    <script src="assets/plugins/leaflet-measure/leaflet-measure.js"></script>
+    <script>
+        var measureControl = new L.Control.Measure({
+            position: 'topright',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'hectares',
+            secondaryAreaUnit: 'sqmeters',
+            activeColor: '#FF0000',
+            completedColor: '#00FF00'
+        });
+        measureControl.addTo(map);
+    </script>
+
+    <!-- Plugin Easy Print -->
+    <script src="assets/plugins/leaflet-easyprint/leaflet.easyPrint.js"></script>
+    <script>
+        L.easyPrint({
+            title: 'Print'
+        }).addTo(map);
+    </script>
+
+    <!-- Plugin Marker Cluster -->
+    <script>
+        L.Routing.control({
+            waypoints: [
+                L.latLng(-7.770060866377252, 110.3778941864042),
+                L.latLng(-7.712975328729104, 110.44844803289897)
+            ],
+            routeWhileDragging: true
+        }).addTo(map);
+    </script>
+
+    <script>
+        var addresPoints = [
+            [-7.770060866377252, 110.3778941864042, "Grha Sabha Pramana"]
+        ]
+        var markers = L.markerClusterGroup();
+        for (var i = 0; i < addresPoints.length; i++) {
+            var a = addresPoints[i];
+            var title1 = a[2];
+            var marker = L.marker(new L.latLng(a[0], a[1]), {
+                title: title1
+            });
+            marker.bindPopup(title1);
+            markers.addLayer(marker);
+        }
+        map.addLayer(markers); 
+    </script>
+
+    <script>
+        $.getJSON("geoportal.php", function (data) {
+            wfsgeoserver1.addData(data);
+            wfsgeoserver1.eachLayer(function (layer) {
+                var Total = layer.feature.properties.Total;
+                if (Total >= 0 && Total <= 10000) {
+                    layer.setStyle({
+                        fillColor: '#ffeecc',
+                        color: '#4d2600',
+                        weight: 1
+                    });
+                } else if (Total > 10000 && Total <= 20000) {
+                    layer.setStyle({
+                        fillColor: '#ff9966',
+                        color: '#4d2600',
+                        weight: 1
+                    });
+                } else if (Total > 20000 && Total <= 30000) {
+                    layer.setStyle({
+                        fillColor: '#ff8533',
+                        color: '#4d2600',
+                        weight: 1
+                    });
+                } else if (Total > 30000 && Total <= 40000) {
+                    layer.setStyle({
+                        fillColor: '#ff6600',
+                        color: '#4d2600',
+                        weight: 1
+                    });
+                } else if (Total > 40000) {
+                    layer.setStyle({
+                        fillColor: '#ff0000',
+                        color: '#4d2600',
+                        weight: 1
+                    });
+                }
+
+                var Kapanewon = layer.feature.properties.Kapanewon;
+                layer.bindPopup(Kapanewon);
+            });
+            map.addLayer(wfsgeoserver1);
+        });
+
+    </script>
+
+    <script>
+        var addresPoints = [
+            [-7.712975328729104, 110.44844803289897, "Rumah Sakit Mitra Paramedika"]
+        ]
+        var markers = L.markerClusterGroup();
+        for (var i = 0; i < addresPoints.length; i++) {
+            var a = addresPoints[i];
+            var title1 = a[2];
+            var marker = L.marker(new L.latLng(a[0], a[1]), {
+                title: title1
+            });
+            marker.bindPopup(title1);
+            markers.addLayer(marker);
+        }
+        map.addLayer(markers); 
+    </script>
+
+</body>
+
+</html>
